@@ -11,10 +11,10 @@ file_type=()
 Matched=()
 Unmatched=()
 
-submission_folder=~/Downloads/Shell-Scripting-Assignment-Files/Workspace/submissions
-target_folder=~/Downloads/Shell-Scripting-Assignment-Files/Workspace/targets
-test_folder=~/Downloads/Shell-Scripting-Assignment-Files/Workspace/tests
-answer_folder=~/Downloads/Shell-Scripting-Assignment-Files/Workspace/answers
+submission_folder=$1
+target_folder=$2
+test_folder=$3
+answer_folder=$4
 
 v=0
 noexecute=0
@@ -79,6 +79,9 @@ do
     name=`basename "$file" | awk -F '_' '{print $1}'`
     names+=("$name")
     students+=("$student_id")
+    if [[ v -eq 1 ]];then
+        echo "Organizing files of $student_id"
+    fi
     main_file=`get_code "$file"`
     line_count+=("$(grep -c '' "$main_file")")
     main_file_extension=`basename "$main_file" | awk -F '.' '{print$2}'`
@@ -89,6 +92,9 @@ do
         mv "$main_file" "$target_folder"/C/"$student_id"/main.c
 
         if [[ noexecute -eq 0 ]];then
+            if [[ v -eq 1 ]];then
+                echo "Executing files of $student_id"
+            fi
             c_folder="$target_folder"/C/"$student_id"
             gcc "$c_folder"/main.c -o "$c_folder"/main.out
             declare -i out_txt=1
@@ -120,6 +126,9 @@ do
         mv "$main_file" "$target_folder"/C++/"$student_id"/main.cpp
 
         if [[ noexecute -eq 0 ]];then
+            if [[ v -eq 1 ]];then
+                echo "Executing files of $student_id"
+            fi
             cpp_folder="$target_folder"/C++/"$student_id"
             g++ "$cpp_folder"/main.cpp -o "$cpp_folder"/main.out
             declare -i out_txt=1
@@ -151,6 +160,9 @@ do
         mv "$main_file" "$target_folder"/Python/"$student_id"/main.py
 
         if [[ noexecute -eq 0 ]];then
+            if [[ v -eq 1 ]];then
+                echo "Executing files of $student_id"
+            fi
             py_folder="$target_folder"/Python/"$student_id"
             declare -i out_txt=1
             for test in "$test_folder"/*
@@ -182,6 +194,9 @@ do
         mv "$main_file" "$target_folder"/Java/"$student_id"/Main.java
 
         if [[ noexecute -eq 0 ]];then
+            if [[ v -eq 1 ]];then
+                echo "Executing files of $student_id"
+            fi
             java_folder="$target_folder"/Java/"$student_id"
             javac "$java_folder"/Main.java
             declare -i out_txt=1
@@ -208,6 +223,10 @@ do
 
     fi
 done
+
+if [[ v -eq 1 ]];then
+    echo "All submissions processed successfully"
+fi
 
 rm -r "$target_folder"/temporary
 
