@@ -7,6 +7,7 @@ names=()
 students=()
 line_count=()
 comment_count=()
+function_count=()
 file_type=()
 Matched=()
 Unmatched=()
@@ -15,6 +16,30 @@ submission_folder=$1
 target_folder=$2
 test_folder=$3
 answer_folder=$4
+
+
+if [[ $# -lt 4 ]];then
+    echo "Wrong number of arguments"
+    echo "Arguments pattern: "
+    echo "  1.Path to submission folder"
+    echo "  1.Path to targets folder"
+    echo "  1.Path to tests folder"
+    echo "  1.Path to answers folder"
+    echo "Optional Arguments: "
+    echo "  -v -noexecute -nolc -nocc -nofc"
+    kill -INT $$
+fi
+
+if [[ ! -d "$submission_folder" ]];then
+    echo "Submission folder not found"
+    kill -INT $$
+elif [[ ! -d "$test_folder" ]];then
+    echo "Test folder not found"
+    kill -INT $$
+elif [[ ! -d "$answer_folder" ]];then
+    echo "Answer folder not found"
+    kill -INT $$
+fi
 
 v=0
 noexecute=0
@@ -45,10 +70,10 @@ while [ $# -gt 0 ]; do
 done
 
 mkdir -p "$target_folder"
-mkdir "$target_folder"/temporary
+mkdir -p "$target_folder"/temporary
 for language in "${languages[@]}"
 do
-    mkdir "$target_folder"/"$language"
+    mkdir -p "$target_folder"/"$language"
 done
 
 for zip in "$submission_folder"/*
@@ -61,7 +86,7 @@ done
 
 get_code() {
     if [[ -f "$1" ]];then
-        extension=`basename "$1" | awk -F '.' '{print $2}'`
+        extension=`basename "$1" | awk -F '.' '{print $NF}'`
         if [[ "$extension" == "c" || "$extension" == "cpp" || "$extension" == "py" || "$extension" == "java" ]];then
             echo "$1"
         fi
@@ -75,7 +100,7 @@ get_code() {
 
 for file in "$target_folder"/temporary/*
 do
-    student_id=`basename "$file" | awk -F '_' '{print $4}'`
+    student_id=`basename "$file" | awk -F '_' '{print $NF}'`
     name=`basename "$file" | awk -F '_' '{print $1}'`
     names+=("$name")
     students+=("$student_id")
@@ -84,11 +109,12 @@ do
     fi
     main_file=`get_code "$file"`
     line_count+=("$(grep -c '' "$main_file")")
-    main_file_extension=`basename "$main_file" | awk -F '.' '{print$2}'`
+    main_file_extension=`basename "$main_file" | awk -F '.' '{print$NF}'`
     if [[ "$main_file_extension" == "c" ]];then
         comment_count+=("$(grep -c '//' "$main_file")")
+        function_count+=("$(grep -cE "( )*[A-Za-z0-9]+( )+[A-Za-z0-9_]+( )*\(" "$main_file")")
         file_type+=("C")
-        mkdir "$target_folder"/C/"$student_id"
+        mkdir -p "$target_folder"/C/"$student_id"
         mv "$main_file" "$target_folder"/C/"$student_id"/main.c
 
         if [[ noexecute -eq 0 ]];then
@@ -121,8 +147,9 @@ do
 
     elif [[ "$main_file_extension" == "cpp" ]];then
         comment_count+=("$(grep -c '//' "$main_file")")
+        function_count+=("$(grep -cE "^( )*[A-Za-z0-9]+( )+[A-Za-z0-9_]+( )*\(" "$main_file")")
         file_type+=("C++")
-        mkdir "$target_folder"/C++/"$student_id"
+        mkdir -p "$target_folder"/C++/"$student_id"
         mv "$main_file" "$target_folder"/C++/"$student_id"/main.cpp
 
         if [[ noexecute -eq 0 ]];then
@@ -155,8 +182,9 @@ do
 
     elif [[ "$main_file_extension" == "py" ]];then
         comment_count+=("$(grep -c '#' "$main_file")")
+        function_count+=("$(grep -cE "^( )*def" "$main_file")")
         file_type+=("Python")
-        mkdir "$target_folder"/Python/"$student_id"
+        mkdir -p "$target_folder"/Python/"$student_id"
         mv "$main_file" "$target_folder"/Python/"$student_id"/main.py
 
         if [[ noexecute -eq 0 ]];then
@@ -189,8 +217,9 @@ do
 
     elif [[ "$main_file_extension" == "java" ]];then
         comment_count+=("$(grep -c '//' "$main_file")")
+        function_count+=("$(grep -cE "^( )*[A-Za-z0-9]*( )+[A-Za-z0-9]*( )+[A-Za-z0-9]+( )+[A-Za-z0-9_]+( )*\(" "$main_file")")
         file_type+=("Java")
-        mkdir "$target_folder"/Java/"$student_id"
+        mkdir -p "$target_folder"/Java/"$student_id"
         mv "$main_file" "$target_folder"/Java/"$student_id"/Main.java
 
         if [[ noexecute -eq 0 ]];then
@@ -235,6 +264,7 @@ rm -r "$target_folder"/temporary
     [ "$noexecute" -eq 0 ] && printf ",matched,not_matched"
     [ "$nolc" -eq 0 ] && printf ",line_count"
     [ "$nocc" -eq 0 ] && printf ",comment_count"
+    [ "$nofc" -eq 0 ] && printf ",function_count"
     printf "\n"
 
     for i in "${!students[@]}"
@@ -243,6 +273,7 @@ rm -r "$target_folder"/temporary
         [ "$noexecute" -eq 0 ] && printf ,"${Matched[$i]}","${Unmatched[$i]}"
         [ "$nolc" -eq 0 ] && printf ,"${line_count[$i]}"
         [ "$nocc" -eq 0 ] && printf ,"${comment_count[$i]}"
+        [ "$nofc" -eq 0 ] && printf ,"${function_count[$i]}"
         printf "\n"
     done
 
