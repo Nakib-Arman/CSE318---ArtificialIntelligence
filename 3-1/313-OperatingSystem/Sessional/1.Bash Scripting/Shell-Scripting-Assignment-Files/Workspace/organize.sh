@@ -79,9 +79,6 @@ done
 for zip in "$submission_folder"/*
 do
     unzip -q "$zip" -d "$target_folder"/temporary
-    # if [[ v -eq 1 ]];then
-    #     echo "$zip" has been unzipped
-    # fi
 done
 
 get_code() {
@@ -126,7 +123,7 @@ do
             declare -i out_txt=1
             for test in "$test_folder"/*
             do
-                "$c_folder"/main.out < "$test" > "$c_folder"/output"$out_txt".txt
+                "$c_folder"/main.out < "$test" > "$c_folder"/out"$out_txt".txt
                 out_txt+=1
             done
             declare -i matched_output=0
@@ -134,7 +131,7 @@ do
             declare -i checked=1
             for ans in "$answer_folder"/* 
             do
-                if diff "$ans" "$c_folder"/output"$checked".txt > /dev/null;then
+                if diff "$ans" "$c_folder"/out"$checked".txt > /dev/null;then
                     ((matched_output++))
                 else
                     ((unmatched_output++))
@@ -161,7 +158,7 @@ do
             declare -i out_txt=1
             for test in "$test_folder"/*
             do
-                "$cpp_folder"/main.out < "$test" > "$cpp_folder"/output"$out_txt".txt
+                "$cpp_folder"/main.out < "$test" > "$cpp_folder"/out"$out_txt".txt
                 out_txt+=1
             done
             declare -i matched_output=0
@@ -169,7 +166,7 @@ do
             declare -i checked=1
             for ans in "$answer_folder"/* 
             do
-                if diff "$ans" "$cpp_folder"/output"$checked".txt > /dev/null;then
+                if diff "$ans" "$cpp_folder"/out"$checked".txt > /dev/null;then
                     ((matched_output++))
                 else
                     ((unmatched_output++))
@@ -196,7 +193,7 @@ do
             for test in "$test_folder"/*
             do
                 chmod u+x "$py_folder"/main.py
-                python3 "$py_folder"/main.py < "$test" > "$py_folder"/output"$out_txt".txt
+                python3 "$py_folder"/main.py < "$test" > "$py_folder"/out"$out_txt".txt
                 out_txt+=1
             done
             declare -i matched_output=0
@@ -204,7 +201,7 @@ do
             declare -i checked=1
             for ans in "$answer_folder"/* 
             do
-                if diff "$ans" "$py_folder"/output"$checked".txt > /dev/null;then
+                if diff "$ans" "$py_folder"/out"$checked".txt > /dev/null;then
                     ((matched_output++))
                 else
                     ((unmatched_output++))
@@ -231,7 +228,7 @@ do
             declare -i out_txt=1
             for test in "$test_folder"/*
             do
-                java -cp "$java_folder" Main < "$test" > "$java_folder"/output"$out_txt".txt
+                java -cp "$java_folder" Main < "$test" > "$java_folder"/out"$out_txt".txt
                 out_txt+=1
             done
             declare -i matched_output=0
@@ -239,7 +236,7 @@ do
             declare -i checked=1
             for ans in "$answer_folder"/* 
             do
-                if diff "$ans" "$java_folder"/output"$checked".txt > /dev/null;then
+                if diff "$ans" "$java_folder"/out"$checked".txt > /dev/null;then
                     ((matched_output++))
                 else
                     ((unmatched_output++))
