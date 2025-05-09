@@ -1,0 +1,4 @@
+Collision for SDBMHash function: 38/100 = 0.38
+Collision for Count Unique Substring function: 57/100 = 0.57 (https://cp-algorithms.com/string/string-hashing.html)
+Collision for JOAAT function: 28/100 = 0.28 (https://github.com/alessandromrc/JOAAT/blob/main/src/JOAAT.h)
+Collision for DJB2 function: 28/100 = 0.28 (https://theartincode.stanis.me/008-djb2/)

@@ -176,6 +176,7 @@ public:
             SymbolInfo *temp;
             temp = curr->getNext();
             curr->setNext(curr->getNext()->getNext());
+            temp->setNext(NULL);
             delete temp;
         }
         cout << "\tDeleted '" << name << "' from ScopeTable# " << id << " at position " << index + 1 << ", " << position << endl;
@@ -206,3 +207,4 @@ public:
         }
     }
 };
+
