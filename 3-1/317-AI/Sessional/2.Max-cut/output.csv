@@ -1,0 +1,3 @@
+,Problem,,,Constructive algorithm,,Localsearch,,GRASP,,Known best solution
+Name,|V| or n,|E| or m,Simple Randomized,Simple Greedy,Semi-greedy,No. of iterations,Average value,No.of iterations,Best value
+G1,800,19176,9573,10956,11006,50,11357,50,11459,12078

@@ -1,3 +1,2 @@
-float avg_cut_weight = RandomizedMaxCut(graph,n);
-    // cout<<avg_cut_weight<<endl;
-    // GreedyMaxCut(edges,n,graph);
+Problem,,,Constructive algorithm,,Localsearch,,GRASP,,Known best solution\n";
+    csv_file << "N
