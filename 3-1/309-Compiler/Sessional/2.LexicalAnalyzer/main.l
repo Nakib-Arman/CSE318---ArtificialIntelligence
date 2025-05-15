@@ -1,5 +1,6 @@
 %option noyywrap
 
+%x Char_const
 %x String
 %x Single_line_comment
 %x Multi_line_comment
@@ -13,103 +14,102 @@
 FILE *f1;
 SymbolTable* symboltable = new SymbolTable(7,&HashFunction::sdbmHash);
 int line_count=1;
+int err_count=0;
 int initial_line=0;
 string str1="",str2="";
 string cmnt="";
 bool inserted = false;
 
-void print_char_constant(char* ch,int line_count){
-    if(!strcmp(ch,"'\\n'")){
+bool print_char_constant(string ch,int line_count){
+    if(ch == "'\\n'"){
         fprintf(f1,"<CHAR_CONST, \n> ");
-        printf("\nLine no %d: Token <CONST_CHAR> Lexeme %sfound --><CHAR_CONST, \n> \n",line_count,ch);
+        printf("\nLine no %d: Token <CONST_CHAR> Lexeme %sfound --><CHAR_CONST, \n> \n",line_count,ch.c_str());
     }
-    else if(!strcmp(ch,"'\\t'")){
+    else if(ch == "'\\t'"){
         fprintf(f1,"<CHAR_CONST, \t> ");
-        printf("\nLine no %d: Token <CONST_CHAR> Lexeme %sfound --><CHAR_CONST, \t> \n",line_count,ch);
+        printf("\nLine no %d: Token <CONST_CHAR> Lexeme %sfound --><CHAR_CONST, \t> \n",line_count,ch.c_str());
     }
-    else if(!strcmp(ch,"'\\\\'")){
+    else if(ch == "'\\\\'"){
         fprintf(f1,"<CHAR_CONST, \\> ");
-        printf("\nLine no %d: Token <CONST_CHAR> Lexeme %sfound --><CHAR_CONST, \\> \n",line_count,ch);
+        printf("\nLine no %d: Token <CONST_CHAR> Lexeme %sfound --><CHAR_CONST, \\> \n",line_count,ch.c_str());
     }
-    else if(!strcmp(ch,"'\\''")){
+    else if(ch == "'\\''"){
         fprintf(f1,"<CHAR_CONST, \'> ");
-        printf("\nLine no %d: Token <CONST_CHAR> Lexeme %sfound --><CHAR_CONST, \'> \n",line_count,ch);
+        printf("\nLine no %d: Token <CONST_CHAR> Lexeme %sfound --><CHAR_CONST, \'> \n",line_count,ch.c_str());
     }
-    else if(!strcmp(ch,"'\\a'")){
+    else if(ch == "'\\a'"){
         fprintf(f1,"<CHAR_CONST, \a> ");
-        printf("\nLine no %d: Token <CONST_CHAR> Lexeme %sfound --><CHAR_CONST, \a> \n",line_count,ch);
+        printf("\nLine no %d: Token <CONST_CHAR> Lexeme %sfound --><CHAR_CONST, \a> \n",line_count,ch.c_str());
     }
-    else if(!strcmp(ch,"'\\f'")){
+    else if(ch == "'\\f'"){
         fprintf(f1,"<CHAR_CONST, \f> ");
-        printf("\nLine no %d: Token <CONST_CHAR> Lexeme %sfound --><CHAR_CONST, \f> \n",line_count,ch);
+        printf("\nLine no %d: Token <CONST_CHAR> Lexeme %sfound --><CHAR_CONST, \f> \n",line_count,ch.c_str());
     }
-    else if(!strcmp(ch,"'\\r'")){
+    else if(ch == "'\\r'"){
         fprintf(f1,"<CHAR_CONST, \n> ");
-        printf("\nLine no %d: Token <CONST_CHAR> Lexeme %sfound --><CHAR_CONST, \r> \n",line_count,ch);
+        printf("\nLine no %d: Token <CONST_CHAR> Lexeme %sfound --><CHAR_CONST, \r> \n",line_count,ch.c_str());
     }
-    else if(!strcmp(ch,"'\\b'")){
+    else if(ch == "'\\b'"){
         fprintf(f1,"<CHAR_CONST, \b> ");
-        printf("\nLine no %d: Token <CONST_CHAR> Lexeme %sfound --><CHAR_CONST, \b> \n",line_count,ch);
+        printf("\nLine no %d: Token <CONST_CHAR> Lexeme %sfound --><CHAR_CONST, \b> \n",line_count,ch.c_str());
     }
-    else if(!strcmp(ch,"'\\v'")){
+    else if(ch == "'\\v'"){
         fprintf(f1,"<CHAR_CONST, \v> ");
-        printf("\nLine no %d: Token <CONST_CHAR> Lexeme %sfound --><CHAR_CONST, \v> \n",line_count,ch);
+        printf("\nLine no %d: Token <CONST_CHAR> Lexeme %sfound --><CHAR_CONST, \v> \n",line_count,ch.c_str());
+    }
+    else if((ch[0] == '\'') && (ch[2] =='\'')){
+        fprintf(f1,"<CHAR_CONST, %c> ", ch[1]); 
+        printf("\nLine no %d: Token <CONST_CHAR> Lexeme %s found --> <CHAR_CONST, %c> \n",line_count,ch.c_str(),ch[1]);
     }
     else{
-        fprintf(f1,"<CHAR_CONST, %c> ", ch[1]); 
-        printf("\nLine no %d: Token <CONST_CHAR> Lexeme %s found --> <CHAR_CONST, %c> \n",line_count,ch,ch[1]);
+        err_count++;
+        printf("\nError at line no %d: Multi character constant error %s\n",line_count,ch.c_str());
+        return false;
     }
+    return true;
 }
 
 void print_escape_sequence(char* ch,string& str){
     if(!strcmp(ch,"\\\"")){
-        fprintf(f1,"\"");
         str=str+"\"";
     }
     else if(!strcmp(ch,"\\n")){
-        fprintf(f1,"\n");
         str=str+"\n";
     }
     else if(!strcmp(ch,"'\\t'")){
-        fprintf(f1,"\t");
         str=str+"\t";
     }
     else if(!strcmp(ch,"'\\\\'")){
-        fprintf(f1,"\\");
         str=str+"\\";
     }
     else if(!strcmp(ch,"'\\''")){
-        fprintf(f1,"\'");
         str=str+"\'";
     }
     else if(!strcmp(ch,"'\\a'")){
-        fprintf(f1,"\a");
         str=str+"\a";
     }
     else if(!strcmp(ch,"'\\f'")){
-        fprintf(f1,"\f");
         str=str+"\f";
     }
     else if(!strcmp(ch,"'\\r'")){
-        fprintf(f1,"\n");
         str=str+"\n";
     }
     else if(!strcmp(ch,"'\\b'")){
-        fprintf(f1,"\b");
         str=str+"\b";
     }
     else if(!strcmp(ch,"'\\v'")){
-        fprintf(f1,"\v");
         str=str+"\v";
     }
 }
 
-void print_float(char* ch,int line_count){
+bool print_float(char* ch,int line_count){
     for (int i=0;ch[i]!='\0';i++){
         ch[i]=tolower((unsigned char)ch[i]);
     }
     fprintf(f1,"<CONST_FLOAT, %s> ",ch);
     printf("\nLine no %d: Token <CONST_FLOAT> Lexeme %s found\n",line_count,ch);
+    inserted = symboltable->insert(ch,"CONST_FLOAT","");
+    return inserted;
 }
 
 
@@ -118,7 +118,7 @@ void print_float(char* ch,int line_count){
 letter [a-zA-Z]
 digit [0-9]
 alphanumeric [_a-zA-Z0-9]
-backslash "\\"
+
 
 %%
 
@@ -217,15 +217,53 @@ backslash "\\"
     if(inserted) symboltable->print_all_scope_nonempty_indices();
     fprintf(f1,"<%s, %s> ","CONST_INT",yytext);
 }
+{digit}+(\.{digit}+)?E[+-]?{digit}+(\.){digit}*((\.){digit}*)* {
+    err_count++;
+    printf("\nError at line no %d: Ill formed number %s\n",line_count,yytext);
+}
+{digit}+(\.){digit}*(\.)({digit}*(\.){digit}*)* {
+    err_count++;
+    printf("\nError at line no %d: Too many decimal points %s\n",line_count,yytext);
+}
+
 {digit}+(\.{digit}+)?(E[+-]?{digit}+)? {
-    inserted = symboltable->insert(yytext,"CONST_FLOAT","");
-    print_float(yytext,line_count);
+    inserted = print_float(yytext,line_count);
     if(inserted) symboltable->print_all_scope_nonempty_indices();
 }
-(\'(\\)?{letter}\') {
-    inserted = symboltable->insert(yytext,"CONST_CHAR","");
-    print_char_constant(yytext,line_count);
-    if(inserted) symboltable->print_all_scope_nonempty_indices();
+"\'" {
+    BEGIN Char_const;
+    str1="";
+    str1 = str1+"\'";
+}
+<Char_const>"\n" {
+    err_count++;
+    printf("\nError at line no %d: Unterminated character %s\n",line_count,str1.c_str());
+    line_count++;
+    BEGIN INITIAL;
+}
+<Char_const>"\'" {
+    if(str1 == "\'"){
+        err_count++;
+        str1 = str1+"\'";
+        printf("\nError at line no %d: Empty character constant error %s\n",line_count,str1.c_str());
+    }
+    else if(str1 == "\'\\"){
+        err_count++;
+        str1 = str1+"\'";
+        printf("\nError at line no %d: Unterminated character %s\n",line_count,str1.c_str());
+    }
+    else{
+        str1 = str1+"\'";
+        bool temp = print_char_constant(str1,line_count);
+        if(temp){
+            inserted = symboltable->insert(str1,"CONST_CHAR","");
+            if(inserted) symboltable->print_all_scope_nonempty_indices();
+        }
+    }
+    BEGIN INITIAL;
+}
+<Char_const>. {
+    str1 = str1+yytext;
 }
 
 
@@ -306,6 +344,10 @@ backslash "\\"
 }
 
 
+{digit}+{alphanumeric}+ {
+    err_count++;
+    printf("\nError at line no %d: Invalid prefix on ID or invalid suffix on Number %s\n",line_count,yytext);
+}
 (_)?{letter}+{alphanumeric}* {
     inserted = symboltable->insert(yytext,"ID","");
     fprintf(f1,"<ID, %s> ",yytext);
@@ -316,31 +358,37 @@ backslash "\\"
 
 "\"" {
     BEGIN String;
-    fprintf(f1,"<STRING, \"");
     initial_line = line_count;
     str1="";
     str2="";
     str1=str1+yytext;
     str2=str2+"\"";
 }
+<String>"\n" {
+    err_count++;
+    printf("\nError at line no %d: Unterminated String %s\n",initial_line,str1.c_str());
+    line_count++;
+    str1="";
+    str2="";
+    BEGIN INITIAL;
+}
 <String>"\\\n" {
     line_count++;
     str1=str1+yytext;  
     str2=str2+""; 
 }
-<String>{backslash}[nt'"afrbv\\] {
+<String>(\\)[nt'"afrbv\\] {
     str1=str1+yytext;
     print_escape_sequence(yytext,str2);
 }
 <String>"\"" {
-    fprintf(f1,"\"> ");
     str1=str1+yytext;
     str2=str2+yytext;
+    fprintf(f1,"<STRING, %s> ",str2.c_str());
     printf("\nLine no %d: Token <STRING> Lexeme %s found --> <STRING, %s> \n",initial_line,str1.c_str(),str2.c_str());
     BEGIN INITIAL;
 }
 <String>. {
-    fprintf(f1,"%s",yytext);
     str1=str1+yytext;
     str2=str2+yytext;    
 }
@@ -382,15 +430,31 @@ backslash "\\"
 <Multi_line_comment>. {
     cmnt = cmnt+yytext;
 }
+<Multi_line_comment><<EOF>> {
+    err_count++;
+    printf("\nError at line no %d: Unterminated Comment %s\n",initial_line,cmnt.c_str());
+    symboltable->print_all_scope_nonempty_indices();
+    printf("\nTotal lines: %d\n",line_count);
+    printf("Total errors: %d\n",err_count);
+    return 0;
+}
 
 
-<<EOF>> {return 0;}
-. {}
+<<EOF>> {
+    symboltable->print_all_scope_nonempty_indices();
+    printf("\nTotal lines: %d\n",line_count);
+    printf("Total errors: %d\n",err_count);
+    return 0;
+}
+. {
+    err_count++;
+    printf("\nError at line no %d: Unrecognized character %s\n",line_count,yytext);
+}
 
 %%
 
 int main(){
-    FILE *input_file = fopen("input/input1.txt","r");
+    FILE *input_file = fopen("input/input3.txt","r");
     freopen("output_log.txt", "w", stdout);
     f1 = fopen("output_token.txt","w");
     /* f2 = fopen("output_log.txt","w"); */
