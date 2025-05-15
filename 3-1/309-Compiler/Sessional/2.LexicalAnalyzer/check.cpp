@@ -2,8 +2,9 @@
 using namespace std;
 
 int main(){
-    int d;
-    int a = 5;
-    d = a\"new string";
-    return 0;
+    string str = "this is a string ";
+    /*Hello World this is a
+    multiline
+    comm//ent*/
+    cout<<str<<endl;
 }

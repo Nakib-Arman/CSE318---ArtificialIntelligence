@@ -4,16 +4,16 @@ using namespace std;
 class HashFunction
 {
 public:
-    unsigned int SDBMHash(string str, unsigned int num_buckets)
+    unsigned int sdbmHash(const char *p)
     {
         unsigned int hash = 0;
-        unsigned int len = str.length();
-
-        for (unsigned int i = 0; i < len; i++)
+        auto *str = (unsigned char *)p;
+        int c{};
+        while ((c = *str++))
         {
-            hash = ((str[i]) + (hash << 6) + (hash << 16) - hash) % num_buckets;
+            hash = c + (hash << 6) + (hash << 16) - hash;
         }
-        return hash;
+        return hash%7;
     }
 
     // cp-algorithms

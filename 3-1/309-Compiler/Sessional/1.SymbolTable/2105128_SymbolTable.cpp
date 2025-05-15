@@ -6,7 +6,8 @@ class SymbolTable
 {
     ScopeTable *current_scope;
     int number_of_scopes, num_buckets;
-    using HashFunctionPtr = unsigned int (HashFunction::*)(string, unsigned int);
+    string id;
+    using HashFunctionPtr = unsigned int (HashFunction::*)(const char *);
     HashFunctionPtr hash_function;
     int collision;
 
@@ -14,9 +15,10 @@ public:
     SymbolTable(int n, HashFunctionPtr func)
     {
         number_of_scopes = 1;
+        id = "1";
         this->hash_function = func;
         this->num_buckets = n;
-        current_scope = new ScopeTable(num_buckets, number_of_scopes, func);
+        current_scope = new ScopeTable(num_buckets, id, func);
         current_scope->setParentScope(NULL);
         collision = 0;
     }
@@ -44,7 +46,8 @@ public:
 
     void EnterScope()
     {
-        ScopeTable *newScope = new ScopeTable(num_buckets, ++number_of_scopes, hash_function);
+        id = id + ".1";
+        ScopeTable *newScope = new ScopeTable(num_buckets, id, hash_function);
         newScope->setParentScope(current_scope);
         current_scope = newScope;
     }
@@ -54,6 +57,11 @@ public:
         if (current_scope->getParentScope() == NULL)
         {
             return;
+        }
+        size_t last_dot = id.rfind('.');
+        if (last_dot != string::npos)
+        {
+            id = id.substr(0, last_dot);
         }
         ScopeTable *temp = current_scope;
         current_scope = current_scope->getParentScope();
@@ -86,7 +94,7 @@ public:
         }
         if (found_symbol == NULL)
         {
-            cout << "\t'" << name << "'" << " not found in any of the ScopeTables" << endl;
+            // cout << "\t'" << name << "'" << " not found in any of the ScopeTables" << endl;
         }
         return found_symbol;
     }
@@ -104,6 +112,16 @@ public:
         {
             curr->print(num_of_tabs);
             num_of_tabs++;
+            curr = curr->getParentScope();
+        }
+    }
+
+    void print_all_scope_nonempty_indices()
+    {
+        ScopeTable *curr = current_scope;
+        while (curr != NULL)
+        {
+            curr->print_nonempty_indices();
             curr = curr->getParentScope();
         }
     }

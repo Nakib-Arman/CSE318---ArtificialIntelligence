@@ -58,7 +58,7 @@ public:
 
     void print()
     {
-        cout << "<" << name << "," << type;
+        cout << "< " << name << " : " << type;
         if (this->type == "FUNCTION")
         {
             string return_type, arguments;

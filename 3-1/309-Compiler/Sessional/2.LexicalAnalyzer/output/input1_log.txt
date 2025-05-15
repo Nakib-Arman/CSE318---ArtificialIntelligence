@@ -171,7 +171,8 @@ ScopeTable # 1
 
 Line no 7: Token <ASSIGNOP> Lexeme = found
 
-Line no 7: Token <CONST_CHAR> Lexeme '\r'found --><CHAR_CONST, > 
+Line no 7: Token <CONST_CHAR> Lexeme '\r'found --><CHAR_CONST, 
+> 
 
 ScopeTable # 1.1
  0 --> < '\n' : CONST_CHAR> 

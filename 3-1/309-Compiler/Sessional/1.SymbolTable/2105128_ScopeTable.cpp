@@ -5,16 +5,17 @@ using namespace std;
 
 class ScopeTable
 {
-    int num_buckets, id;
+    int num_buckets;
+    string id;
     ScopeTable *parent_scope;
     SymbolInfo **hash_table;
-    using HashFunctionPtr = unsigned int (HashFunction::*)(string, unsigned);
+    using HashFunctionPtr = unsigned int (HashFunction::*)(const char*);
     HashFunctionPtr hash_function;
     HashFunction hash_function_generator;
     int collision;
 
 public:
-    ScopeTable(int n, int id, HashFunctionPtr func)
+    ScopeTable(int n, string id, HashFunctionPtr func)
     {
         num_buckets = n;
         this->id = id;
@@ -25,7 +26,7 @@ public:
             hash_table[i] = NULL;
         }
         collision = 0;
-        cout << "\tScopeTable# " << id << " created" << endl;
+        // cout << "\tScopeTable# " << id << " created" << endl;
     }
 
     ~ScopeTable()
@@ -36,7 +37,7 @@ public:
                 delete hash_table[i];
         }
         delete[] hash_table;
-        cout << "\tScopeTable# " << id << " removed" << endl;
+        // cout << "\tScopeTable# " << id << " removed" << endl;
     }
 
     int getNumberOfBuckets()
@@ -44,7 +45,7 @@ public:
         return num_buckets;
     }
 
-    int getID()
+    string getID()
     {
         return id;
     }
@@ -64,7 +65,7 @@ public:
         this->num_buckets = num_buckets;
     }
 
-    void setID(int id)
+    void setID(string id)
     {
         this->id = id;
     }
@@ -76,7 +77,7 @@ public:
 
     SymbolInfo *LookUp(string name)
     {
-        int index = (hash_function_generator.*hash_function)(name, num_buckets);
+        int index = (hash_function_generator.*hash_function)(name.c_str());
         SymbolInfo *curr = hash_table[index];
         if (curr == NULL)
         {
@@ -92,14 +93,14 @@ public:
         }
         if (curr != NULL)
         {
-            cout << "\t'" << name << "'" << " found in ScopeTable# " << id << " at position " << index + 1 << ", " << position << endl;
+            // cout << "\t'" << name << "'" << " found in ScopeTable# " << id << " at position " << index + 1 << ", " << position << endl;
         }
         return curr;
     }
 
     SymbolInfo *LookUp2(string name)
     {
-        int index = (hash_function_generator.*hash_function)(name, num_buckets);
+        int index = (hash_function_generator.*hash_function)(name.c_str());
         SymbolInfo *curr = hash_table[index];
         if (curr == NULL)
         {
@@ -121,11 +122,11 @@ public:
         SymbolInfo *exists = LookUp2(name);
         if (exists != NULL)
         {
-            cout << "\t'" << exists->getName() << "'" << " already exists in the current ScopeTable" << endl;
+            // cout << "\t'" << exists->getName() << "'" << " already exists in the current ScopeTable" << endl;
             collision++;
             return false;
         }
-        int index = (hash_function_generator.*hash_function)(name, num_buckets);
+        int index = (hash_function_generator.*hash_function)(name.c_str());
         SymbolInfo *newSymbol = new SymbolInfo(name, type, extra_info);
         SymbolInfo *curr = hash_table[index];
         int position = 1;
@@ -144,7 +145,7 @@ public:
             }
             curr->setNext(newSymbol);
         }
-        cout << "\tInserted in ScopeTable# " << id << " at position " << index + 1 << ", " << position << endl;
+        // cout << "\tInserted in ScopeTable# " << id << " at position " << index + 1 << ", " << position << endl;
         return true;
     }
 
@@ -153,10 +154,10 @@ public:
         SymbolInfo *exists = LookUp2(name);
         if (exists == NULL)
         {
-            cout << "\tNot found in the current ScopeTable" << endl;
+            // cout << "\tNot found in the current ScopeTable" << endl;
             return false;
         }
-        int index = (hash_function_generator.*hash_function)(name, num_buckets);
+        int index = (hash_function_generator.*hash_function)(name.c_str());
         SymbolInfo *curr = hash_table[index];
         int position = 1;
         if (curr == exists)
@@ -179,7 +180,7 @@ public:
             temp->setNext(NULL);
             delete temp;
         }
-        cout << "\tDeleted '" << name << "' from ScopeTable# " << id << " at position " << index + 1 << ", " << position << endl;
+        // cout << "\tDeleted '" << name << "' from ScopeTable# " << id << " at position " << index + 1 << ", " << position << endl;
         return true;
     }
 
@@ -206,5 +207,23 @@ public:
             cout << endl;
         }
     }
-};
 
+    void print_nonempty_indices()
+    {
+        cout << "\nScopeTable # " << id << endl;
+        for (int i = 0; i < num_buckets; i++)
+        {
+            SymbolInfo *curr = hash_table[i];
+            if (curr != NULL)
+            {
+                cout<<" "<< i << " --> ";
+                while (curr != NULL)
+                {
+                    curr->print();
+                    curr = curr->getNext();
+                }
+                cout << endl;
+            }
+        }
+    }
+};
