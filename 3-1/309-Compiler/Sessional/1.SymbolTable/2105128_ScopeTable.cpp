@@ -109,15 +109,15 @@ public:
         return curr;
     }
 
-    SymbolInfo *LookUp2(string name)
+    pair<SymbolInfo*,pair<int,int>> LookUp2(string name)
     {
         int index = (hash_function_generator.*hash_function)(name.c_str(),num_buckets);
         SymbolInfo *curr = hash_table[index];
         if (curr == NULL)
         {
-            return curr;
+            return make_pair(curr,make_pair(0,0));
         }
-        int position = 1;
+        int position = 0;
         while (curr->getName() != name)
         {
             curr = curr->getNext();
@@ -125,22 +125,23 @@ public:
             if (curr == NULL)
                 break;
         }
-        return curr;
+        return make_pair(curr,make_pair(index,position));
     }
 
-    bool insert(string name, string type, string extra_info)
+    pair<int,int> insert(string name, string type, string extra_info)
     {
-        SymbolInfo *exists = LookUp2(name);
-        if (exists != NULL)
+        pair<SymbolInfo*,pair<int,int>> exists = LookUp2(name);
+        if (exists.first != NULL)
         {
-            // cout << "\t'" << exists->getName() << "'" << " already exists in the current ScopeTable" << endl;
+            // < 100 : CONST_INT > already exists in ScopeTable# 1.1 at position 4, 1
+            // cout <<"< "<<exists.first->getName()<<" : "<<exists.first->getType() << " >" << " already exists in ScopeTable# "<<id<<" at position "<<exists.second.first<<", "<<exists.second.second << endl;
             collision++;
-            return false;
+            return exists.second;
         }
         int index = (hash_function_generator.*hash_function)(name.c_str(),num_buckets);
         SymbolInfo *newSymbol = new SymbolInfo(name, type, extra_info);
         SymbolInfo *curr = hash_table[index];
-        int position = 1;
+        int position = 0;
         if (curr == NULL)
         {
             hash_table[index] = newSymbol;
@@ -157,13 +158,13 @@ public:
             curr->setNext(newSymbol);
         }
         // cout << "\tInserted in ScopeTable# " << id << " at position " << index + 1 << ", " << position << endl;
-        return true;
+        return make_pair(0,0);
     }
 
     bool remove(string name)
     {
-        SymbolInfo *exists = LookUp2(name);
-        if (exists == NULL)
+        pair<SymbolInfo*,pair<int,int>> exists = LookUp2(name);
+        if (exists.first == NULL)
         {
             // cout << "\tNot found in the current ScopeTable" << endl;
             return false;
@@ -171,7 +172,7 @@ public:
         int index = (hash_function_generator.*hash_function)(name.c_str(),num_buckets);
         SymbolInfo *curr = hash_table[index];
         int position = 1;
-        if (curr == exists)
+        if (curr == exists.first)
         {
             hash_table[index] = curr->getNext();
             curr->setNext(NULL);
@@ -180,7 +181,7 @@ public:
         else
         {
             position++;
-            while (curr->getNext() != exists)
+            while (curr->getNext() != exists.first)
             {
                 curr = curr->getNext();
                 position++;
@@ -221,13 +222,13 @@ public:
 
     void print_nonempty_indices()
     {
-        cout << "\nScopeTable # " << id << endl;
+        cout << "ScopeTable # " << id << endl;
         for (int i = 0; i < num_buckets; i++)
         {
             SymbolInfo *curr = hash_table[i];
             if (curr != NULL)
             {
-                cout<<" "<< i << " --> ";
+                cout<< i << " --> ";
                 while (curr != NULL)
                 {
                     curr->print();

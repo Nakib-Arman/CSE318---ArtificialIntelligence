@@ -70,10 +70,10 @@ public:
         delete temp;
     }
 
-    bool insert(string name, string type, string extra_info)
+    pair<string,pair<int,int>> insert(string name, string type, string extra_info)
     {
-        bool inserted = current_scope->insert(name, type, extra_info);
-        return inserted;
+        pair<int,int> inserted = current_scope->insert(name, type, extra_info);
+        return make_pair(current_scope->getID(),inserted);
     }
 
     bool remove(string name)
@@ -125,5 +125,6 @@ public:
             curr->print_nonempty_indices();
             curr = curr->getParentScope();
         }
+        cout<<endl;
     }
 };

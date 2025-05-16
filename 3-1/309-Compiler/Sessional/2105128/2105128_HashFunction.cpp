@@ -11,7 +11,7 @@ public:
         int c{};
         while ((c = *str++))
         {
-            hash = c + (hash << 6) + (hash << 16) - hash;
+            hash = (c + (hash << 6) + (hash << 16) - hash);
         }
         return hash%num_bucket;
     }

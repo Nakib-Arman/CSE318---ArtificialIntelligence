@@ -11,9 +11,9 @@ public:
         int c{};
         while ((c = *str++))
         {
-            hash = (c + (hash << 6) + (hash << 16) - hash)%num_bucket;
+            hash = (c + (hash << 6) + (hash << 16) - hash);
         }
-        return hash;
+        return hash%num_bucket;
     }
 
     // cp-algorithms
