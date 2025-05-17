@@ -401,6 +401,14 @@ alphanumeric [_a-zA-Z0-9]
     printf("Line no %d: Token <STRING> Lexeme %s found --> <STRING, %s>\n\n",line_count,str1.c_str(),str2.c_str());
     BEGIN INITIAL;
 }
+<String><<EOF>> {
+    err_count++;
+    printf("Error at line no %d: Unterminated string %s\n\n",initial_line,str1.c_str());
+    symboltable->print_all_scope_nonempty_indices();
+    printf("Total lines: %d\n",line_count);
+    printf("Total errors: %d\n",err_count);
+    return 0;
+}
 <String>. {
     str1=str1+yytext;
     str2=str2+yytext;    

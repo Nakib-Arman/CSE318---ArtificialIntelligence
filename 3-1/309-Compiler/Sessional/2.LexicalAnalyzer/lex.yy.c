@@ -1511,9 +1511,20 @@ YY_RULE_SETUP
     BEGIN INITIAL;
 }
 	YY_BREAK
+case YY_STATE_EOF(String):
+#line 404 "main.l"
+{
+    err_count++;
+    printf("Error at line no %d: Unterminated string %s\n\n",initial_line,str1.c_str());
+    symboltable->print_all_scope_nonempty_indices();
+    printf("Total lines: %d\n",line_count);
+    printf("Total errors: %d\n",err_count);
+    return 0;
+}
+	YY_BREAK
 case 64:
 YY_RULE_SETUP
-#line 404 "main.l"
+#line 412 "main.l"
 {
     str1=str1+yytext;
     str2=str2+yytext;    
@@ -1521,7 +1532,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 65:
 YY_RULE_SETUP
-#line 410 "main.l"
+#line 418 "main.l"
 {
     BEGIN Single_line_comment;
     cmnt = "";
@@ -1531,7 +1542,7 @@ YY_RULE_SETUP
 case 66:
 /* rule 66 can match eol */
 YY_RULE_SETUP
-#line 415 "main.l"
+#line 423 "main.l"
 {
     line_count++;
     cmnt = cmnt+yytext;
@@ -1540,7 +1551,7 @@ YY_RULE_SETUP
 case 67:
 /* rule 67 can match eol */
 YY_RULE_SETUP
-#line 419 "main.l"
+#line 427 "main.l"
 {
     printf("Line no %d: Token <COMMENT> Lexeme %s found\n\n",line_count,cmnt.c_str());
     line_count++;
@@ -1549,14 +1560,14 @@ YY_RULE_SETUP
 	YY_BREAK
 case 68:
 YY_RULE_SETUP
-#line 424 "main.l"
+#line 432 "main.l"
 {
     cmnt = cmnt+yytext;
 }
 	YY_BREAK
 case 69:
 YY_RULE_SETUP
-#line 428 "main.l"
+#line 436 "main.l"
 {
     BEGIN Multi_line_comment;
     initial_line = line_count;
@@ -1566,7 +1577,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 70:
 YY_RULE_SETUP
-#line 434 "main.l"
+#line 442 "main.l"
 {
     printf("Line no %d: Token <COMMENT> Lexeme %s*/ found\n\n",line_count,cmnt.c_str());
     BEGIN INITIAL;
@@ -1575,7 +1586,7 @@ YY_RULE_SETUP
 case 71:
 /* rule 71 can match eol */
 YY_RULE_SETUP
-#line 438 "main.l"
+#line 446 "main.l"
 {
     line_count++;
     cmnt = cmnt+yytext;
@@ -1583,13 +1594,13 @@ YY_RULE_SETUP
 	YY_BREAK
 case 72:
 YY_RULE_SETUP
-#line 442 "main.l"
+#line 450 "main.l"
 {
     cmnt = cmnt+yytext;
 }
 	YY_BREAK
 case YY_STATE_EOF(Multi_line_comment):
-#line 445 "main.l"
+#line 453 "main.l"
 {
     err_count++;
     printf("Error at line no %d: Unterminated comment %s\n\n",initial_line,cmnt.c_str());
@@ -1601,9 +1612,8 @@ case YY_STATE_EOF(Multi_line_comment):
 	YY_BREAK
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(Char_const):
-case YY_STATE_EOF(String):
 case YY_STATE_EOF(Single_line_comment):
-#line 455 "main.l"
+#line 463 "main.l"
 {
     symboltable->print_all_scope_nonempty_indices();
     printf("Total lines: %d\n",line_count);
@@ -1613,7 +1623,7 @@ case YY_STATE_EOF(Single_line_comment):
 	YY_BREAK
 case 73:
 YY_RULE_SETUP
-#line 461 "main.l"
+#line 469 "main.l"
 {
     err_count++;
     printf("Error at line no %d: Unrecognized character %s\n\n",line_count,yytext);
@@ -1621,10 +1631,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 74:
 YY_RULE_SETUP
-#line 466 "main.l"
+#line 474 "main.l"
 ECHO;
 	YY_BREAK
-#line 1628 "lex.yy.c"
+#line 1638 "lex.yy.c"
 
 	case YY_END_OF_BUFFER:
 		{
@@ -2627,7 +2637,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 466 "main.l"
+#line 474 "main.l"
 
 
 int main(int argc, char **argv){
