@@ -1,3 +1,0 @@
-vector < int >
-vector < vector < float > >
-vector < vector < vector < double > > >
