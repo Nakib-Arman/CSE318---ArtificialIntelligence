@@ -117,9 +117,9 @@ char foundWinner(vector<vector<Cell>>& grid) {
     return winner;
 }
 
-int minimax(vector<vector<Cell>>& grid,char color,int depth,int alpha,int beta) {
-    if(depth == 0 || foundWinner(grid) != 'W') return evaluate(grid,color);
-
+int minimax(vector<vector<Cell>>& grid,char ai_color,char user_color,int depth) {
+    if(depth == 0 || foundWinner(grid) != 'W') return evaluate(grid,ai_color);
+    
 }
 
 void getBestMove(vector<vector<Cell>>& grid,char ai_color,char user_color,int depth) {
@@ -127,7 +127,7 @@ void getBestMove(vector<vector<Cell>>& grid,char ai_color,char user_color,int de
     for(int i=0;i<grid.size();i++){
         for(int j=0;j<grid[0].size();j++){
             if(!isValidMove(grid,ai_color,i,j)) continue;
-            
+
         }
     }
 }

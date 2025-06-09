@@ -127,7 +127,7 @@ void getBestMove(vector<vector<Cell>>& grid,char ai_color,char user_color,int de
     for(int i=0;i<grid.size();i++){
         for(int j=0;j<grid[0].size();j++){
             if(!isValidMove(grid,ai_color,i,j)) continue;
-            
+
         }
     }
 }
