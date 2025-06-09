@@ -60,7 +60,7 @@ bool isValidMove(vector<vector<Cell>>& grid,char user_color,int row,int column) 
     return false;
 }
 
-void inc_cell_orbs(vector<vector<Cell>>& grid, char color,int row,int column) {
+void inc_cell_orbs(vector<vector<Cell>>& grid, char user_color,int row,int column) {
     if(row<0 || row>=grid.size()) return;
     if(column<0 || column>=grid[0].size()) return;
     grid[row][column].inc_orb_count();
@@ -68,13 +68,13 @@ void inc_cell_orbs(vector<vector<Cell>>& grid, char color,int row,int column) {
     if(target.get_orb_num() == target.get_critical_mass()) {
         grid[row][column].set_orb_num(0);
         grid[row][column].set_color('W');
-        inc_cell_orbs(grid,color,row+1,column);
-        inc_cell_orbs(grid,color,row-1,column);
-        inc_cell_orbs(grid,color,row,column+1);
-        inc_cell_orbs(grid,color,row,column-1);
+        inc_cell_orbs(grid,user_color,row+1,column);
+        inc_cell_orbs(grid,user_color,row-1,column);
+        inc_cell_orbs(grid,user_color,row,column+1);
+        inc_cell_orbs(grid,user_color,row,column-1);
     }
     else{
-        grid[row][column].set_color(color);
+        grid[row][column].set_color(user_color);
     }
 }
 
@@ -84,56 +84,7 @@ int userMove(vector<vector<Cell>>& grid,char user_color,int row,int column) {
     return 0;
 }
 
-int evaluate(vector<vector<Cell>>& grid, char ai_color) {
-    int ai_orbs = 0, user_orbs = 0;
-    for (int i=0; i<grid.size(); i++) {
-        for (int j=0; j< grid[0].size(); j++) {
-            if (grid[i][j].get_color() == ai_color)
-                ai_orbs += grid[i][j].get_orb_num();
-            else{
-                user_orbs += grid[i][j].get_orb_num();
-            }
-        }
-    }
-    return ai_orbs - user_orbs;
-}
-
-char foundWinner(vector<vector<Cell>>& grid) {
-    char winner = 'W';
-    int count = 0;
-    for(int i=0;i<grid.size();i++){
-        for(int j=0; j<grid[0].size();j++){
-            if(grid[i][j].get_color() == 'W') continue;
-            if(winner != 'W' && grid[i][j].get_color() != winner) {
-                return 'W';
-            }
-            else if(grid[i][j].get_color() != 'W') {
-                winner = grid[i][j].get_color();
-                count++;
-            }
-        }
-    }
-    if(count ==1) return 'W';
-    return winner;
-}
-
-pair<int,pair<int,int>> minimax(vector<vector<Cell>>& grid,char ai_color,char user_color,int depth) {
-    if(depth == 0)
-}
-
-void getBestMove(vector<vector<Cell>>& grid,char ai_color,char user_color,int depth) {
-    int best_value = INT_MIN;
-    for(int i=0;i<grid.size();i++){
-        for(int j=0;j<grid[0].size();j++){
-            if(!isValidMove(grid,ai_color,i,j)) continue;
-
-        }
-    }
-}
-
-int aiMove(vector<vector<Cell>>& grid,char ai_color,int row,int column) {
-    
-}
+int aiMove(vector<vector<Cell>>& grid,char ai_color,int row,int column)
 
 
 int main() {

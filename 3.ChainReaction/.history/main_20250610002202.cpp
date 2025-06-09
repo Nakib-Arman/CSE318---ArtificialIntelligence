@@ -100,21 +100,11 @@ int evaluate(vector<vector<Cell>>& grid, char ai_color) {
 
 char foundWinner(vector<vector<Cell>>& grid) {
     char winner = 'W';
-    int count = 0;
     for(int i=0;i<grid.size();i++){
         for(int j=0; j<grid[0].size();j++){
-            if(grid[i][j].get_color() == 'W') continue;
-            if(winner != 'W' && grid[i][j].get_color() != winner) {
-                return 'W';
-            }
-            else if(grid[i][j].get_color() != 'W') {
-                winner = grid[i][j].get_color();
-                count++;
-            }
+            if(grid[i][j].get_color() != 'W' || grid[i][j].get_color() != '')
         }
     }
-    if(count ==1) return 'W';
-    return winner;
 }
 
 pair<int,pair<int,int>> minimax(vector<vector<Cell>>& grid,char ai_color,char user_color,int depth) {

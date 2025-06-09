@@ -84,51 +84,9 @@ int userMove(vector<vector<Cell>>& grid,char user_color,int row,int column) {
     return 0;
 }
 
-int evaluate(vector<vector<Cell>>& grid, char ai_color) {
-    int ai_orbs = 0, user_orbs = 0;
-    for (int i=0; i<grid.size(); i++) {
-        for (int j=0; j< grid[0].size(); j++) {
-            if (grid[i][j].get_color() == ai_color)
-                ai_orbs += grid[i][j].get_orb_num();
-            else{
-                user_orbs += grid[i][j].get_orb_num();
-            }
-        }
-    }
-    return ai_orbs - user_orbs;
-}
-
-char foundWinner(vector<vector<Cell>>& grid) {
-    char winner = 'W';
-    int count = 0;
-    for(int i=0;i<grid.size();i++){
-        for(int j=0; j<grid[0].size();j++){
-            if(grid[i][j].get_color() == 'W') continue;
-            if(winner != 'W' && grid[i][j].get_color() != winner) {
-                return 'W';
-            }
-            else if(grid[i][j].get_color() != 'W') {
-                winner = grid[i][j].get_color();
-                count++;
-            }
-        }
-    }
-    if(count ==1) return 'W';
-    return winner;
-}
-
-pair<int,pair<int,int>> minimax(vector<vector<Cell>>& grid,char ai_color,char user_color,int depth) {
-    if(depth == 0)
-}
-
-void getBestMove(vector<vector<Cell>>& grid,char ai_color,char user_color,int depth) {
+void getBestMove(vector<vector<Cell>>& grid,char ai_color) {
     int best_value = INT_MIN;
-    for(int i=0;i<grid.size();i++){
-        for(int j=0;j<grid[0].size();j++){
-            if(!isValidMove(grid,ai_color,i,j)) continue;
-
-        }
-    }
+    for(int i=0;i<)
 }
 
 int aiMove(vector<vector<Cell>>& grid,char ai_color,int row,int column) {
