@@ -1,0 +1,4 @@
+  File "/home/arzon/Work/Academics/3-1/Sessional/CSE218 - ArtificialIntelligence/3.ChainReaction/hello .py", line 62, in draw_orbs
+    for j,value in enumerate(row):
+                   ^^^^^^^^^^^^^^
+TypeError: 'int' object is not iterable
