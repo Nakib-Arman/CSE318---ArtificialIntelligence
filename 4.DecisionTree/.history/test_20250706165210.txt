@@ -1,0 +1,15 @@
+Weather,Temperature,Humidity,Wind,Play_Football?
+Sunny,20,High,Weak,No
+Sunny,24,High,Strong,No
+Cloudy,25,High,Weak,Yes
+Rain,25,High,Weak,Yes
+Rain,26,Normal,Weak,Yes
+Rain,19,Normal,Strong,No
+Cloudy,21,Normal,Strong,Yes
+Sunny,24,High,Weak,No
+Sunny,27,Normal,Weak,NO
+Rain,32,Normal,Weak,Yes
+Sunny,33,Normal,Strong,Yes
+Cloudy,23,High,Strong,Yes
+Cloudy,22,Normal,Weak,Yes
+Rain,22,High,Strong,No

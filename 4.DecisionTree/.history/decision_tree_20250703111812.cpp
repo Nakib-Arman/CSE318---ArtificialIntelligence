@@ -1,0 +1,15 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+int getEntropy(int attributes, int top, int bottom)
+{
+    int entropy=0;
+    for (int i=0;i<attributes;i++){
+        entropy -= top/
+    }
+}
+
+int main()
+{
+
+}

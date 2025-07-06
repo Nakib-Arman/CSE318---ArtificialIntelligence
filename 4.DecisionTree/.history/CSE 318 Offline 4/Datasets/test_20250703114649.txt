@@ -1,0 +1,5 @@
+Day,Weather,Temperature,Humidity,Wind,Play Football?
+1,Sunny,Hot,High,Weak,No
+2,Sunny,Hot,High,Strong,No
+3,Cloudy,Hot,High,Weak,Yes
+4,Rain,
