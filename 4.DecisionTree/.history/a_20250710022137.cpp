@@ -1,0 +1,382 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+class Node {
+    int column_num;
+    string label;
+    unordered_map<string,Node*> children;
+    float threshold;
+    
+public:
+    Node(int column_num){
+        this->column_num = column_num;
+        this->label = "";
+        this->threshold = 0;
+    }
+
+    Node(string label){
+        column_num = 0;
+        this->label = label;
+        this->threshold = 0;
+    }
+
+    int getColumnNum(){
+        return column_num;
+    }
+
+    string getLabel(){
+        return label;
+    }
+
+    float getThreshold(){
+        return threshold;
+    }
+
+    Node* getChild(string edge){
+        return children[edge];
+    }
+
+    void addChild(string edge, Node* child){
+        stringstream ss(edge);
+        string first,second;
+        ss>>first>>second;
+        if(!second.empty()){
+            this->threshold = stof(second);
+        }
+        this->children[edge] = child;
+    }
+    
+    void print(){
+        cout<<column_num<<" -> ";
+        for(auto& [val,node] : children){
+            cout<<"("<<val<<","<<node->getColumnNum()<<","<<node->getLabel()<<"), ";
+        }
+        cout<<endl;
+    }
+};
+
+string trim(string str)
+{
+    int start=0,end = str.size();
+    while(str[start] == ' ') start++;
+    while(str[end] == ' ') end--;
+    return str.substr(start, end-start);
+}
+
+bool is_digit(string str)
+{
+    for(int i=0;i<str.size();i++){
+        if(str[i] == '.') continue;
+        if(!isdigit(str[i])) return false;
+    }
+    return true;
+}
+
+float getEntropy(int dataset_size,unordered_map<string,int>& decisions)
+{
+    float entropy=0;
+    for(auto& [val,count] : decisions){
+        // if (count[i] == 0) continue;
+        float probability = static_cast <float> (count)/dataset_size;
+        entropy -= (probability * log2(probability));
+    }
+    return entropy;
+}
+
+float getInformationGain(vector<vector<string>>& dataset, vector<unordered_set<string>>& values, unordered_map<string,int>& decisions,int attribute_num,float threshold=0)
+{
+    float ig= getEntropy(dataset.size(),decisions);
+    if(is_digit(*values[attribute_num].begin())){
+        int temp1_size=0,temp2_size=0;
+        unordered_map<string,int>temp_decisions1,temp_decisions2;
+        for(int i=0;i<dataset.size();i++){
+            if(stof(dataset[i][attribute_num]) < threshold){
+                temp1_size++;
+                temp_decisions1[dataset[i][values.size()-1]]++;
+            }
+            else{
+                temp2_size++;
+                temp_decisions2[dataset[i][values.size()-1]]++;
+            }
+        }
+        float entropy1 = getEntropy(temp1_size,temp_decisions1);
+        float entropy2 = getEntropy(temp2_size,temp_decisions2);
+        ig -= (static_cast <float> (temp1_size)/dataset.size())*entropy1;
+        ig -= (static_cast <float> (temp2_size)/dataset.size())*entropy2;
+    }
+    else{
+        for(string value : values[attribute_num]){
+            int temp=0;
+            unordered_map<string,int> temp_decisions;
+            for(int i=0;i<dataset.size();i++){
+                if(dataset[i][attribute_num] == value){
+                    temp++;
+                    temp_decisions[dataset[i][values.size()-1]]++;
+                }
+            }
+            float entropy = getEntropy(temp,temp_decisions);
+            ig -= (static_cast <float> (temp)/dataset.size())*entropy;
+        }
+    }
+    return ig;
+}
+
+void calculateMaxThreshold(vector<vector<string>>& dataset,vector<unordered_set<string>>& values,unordered_map<string,int>& decisions,vector<pair<float,bool>>& used)
+{
+    for(int i=0;i<values.size();i++){
+        if(!is_digit(*values[i].begin())) continue;
+        float max_ig = INT_MIN;
+        float max_threshold = 0;
+        int j=0;
+        for(string val: values[i]){
+            float ig = getInformationGain(dataset,values,decisions,i,stof(val));
+            if(ig>max_ig){
+                max_ig = ig;
+                max_threshold = stof(val);
+            }
+            j++;
+        }
+        used[i].first = max_threshold;
+    }
+}
+
+
+Node* makeDecisionTree(vector<vector<string>>& dataset, vector<unordered_set<string>>& values, unordered_map<string,int>& decisions,vector<pair<float,bool>>& used)
+{   
+    int count = 0;
+    for(auto& [val,cnt] : decisions){
+        if(cnt>0) count++;
+    }
+    if(count == 1){
+        return new Node(dataset[0][dataset[0].size()-1]);
+    }
+    count = 0;
+    for(int i=0;i<used.size();i++){
+        if(!used[i].second){
+            count++;
+        }
+    }
+    if(count == 1){
+        // vector<pair<string,int>> labels(values[values.size()-1].size());
+        int i=0;
+        // for (auto& [val,cnt] : decisions){
+        //     labels[i].first = val;
+        //     labels[i].second = 0;
+        //     for(int j=0;j<dataset.size();j++){
+        //         if(dataset[j][dataset[j].size()-1] == val){
+        //             labels[i].second++;
+        //         }
+        //     }
+        //     i++;
+        // }
+        int max_count = 0;
+        string label;
+        // for(int i=0;i<labels.size();i++){
+        //     if(labels[i].second>max_count){
+        //         max_count = labels[i].second;
+        //         max = i;
+        //     }
+        // }
+        for(auto& [val,cnt] : decisions){
+            if(cnt>max_count){
+                max_count = cnt;
+                label = val;
+            }
+        }
+        return new Node (label);
+    }
+
+    float max_ig = INT_MIN;
+    int max_i=0;
+    for (int i=0;i<used.size()-1;i++){
+        if(used[i].second){
+            continue;
+        }
+        float temp = 0;
+        // if(values[i].size() == 1){
+        //     for(string val:values[i]){
+        //         temp = stof(val);
+        //     }
+        // }
+        float ig = getInformationGain(dataset,values,decisions,i,used[i].first);
+        if(ig>max_ig){
+            max_ig = ig;
+            max_i = i;
+        }
+    }
+    used[max_i].second = true;
+    Node* root = new Node(max_i+1);
+    for(string val: values[max_i]){
+        if(is_digit(val)){
+            vector<vector<string>> temp_dataset1,temp_dataset2;
+            unordered_map<string,int> temp_decisions1,temp_decisions2;
+            // vector<vector<float>> temp_numeric_values1(numeric_values.size()),temp_numeric_values2(numeric_values.size());
+            for(int i=0;i<dataset.size();i++){
+                if(stof(dataset[i][max_i]) < used[max_i].first){
+                    temp_dataset1.push_back(dataset[i]);
+                    // for(int j=0;j<numeric_values.size();j++){
+                    //     if(numeric_values[j].empty()) continue;
+                    //     temp_numeric_values1[j].push_back(numeric_values[j][i]);
+                    // }
+                    temp_decisions1[dataset[i][values.size()-1]]++;
+                }
+                else{
+                    temp_dataset2.push_back(dataset[i]);
+                    // for(int j=0;j<numeric_values.size();j++){
+                    //     if(numeric_values[j].empty()) continue;
+                    //     temp_numeric_values2[j].push_back(numeric_values[j][i]);
+                    // }
+                    temp_decisions2[dataset[i][values.size()-1]]++;
+                }
+            }
+            // vector<pair<string,int>> labels(values[values.size()-1].size());
+            // int i=0;
+            // for (string val : values[values.size()-1]){
+            //     labels[i].first = val;
+            //     labels[i].second = 0;
+            //     for(int j=0;j<dataset.size();j++){
+            //         if(dataset[j][dataset[j].size()-1] == val){
+            //             labels[i].second++;
+            //         }
+            //     }
+            //     i++;
+            // }
+            int max_count = 0;
+            string label;
+            for(auto& [val,cnt] : decisions){
+                if(cnt>max_count){
+                    max_count = cnt;
+                    label = val;
+                }
+            }
+            if(temp_dataset1.size() == 0) {
+                root->addChild("lt "+to_string(used[max_i].first),new Node (label));
+            }
+            else{
+                // for(int i=0;i<temp_numeric_values1.size();i++){
+                //     if(temp_numeric_values1[i].empty()) continue;
+                //     values[i].clear();
+                //     float max_ig = INT_MIN;
+                //     int max_index = 0;
+                //     for(int j=0;j<temp_dataset1.size();j++){
+                //         float ig = getInformationGain(temp_dataset1,values[values.size()-1],i,values[i],temp_numeric_values1[i][j]);
+                //         if(ig>max_ig){
+                //             max_ig = ig;
+                //             max_index = j;
+                //         }
+                //     }
+                //     values[i].insert(to_string(temp_numeric_values1[i][max_index]));
+                // }
+                calculateMaxThreshold(temp_dataset1,values,temp_decisions1,used);
+                Node* child1 = makeDecisionTree(temp_dataset1,values,temp_decisions1,used);
+                root->addChild("lt "+to_string(used[max_i].first),child1);
+            }
+            if(temp_dataset2.size() == 0){
+                root->addChild("geq "+to_string(used[max_i].first),new Node (label));
+            }
+            else{
+                // for(int i=0;i<temp_numeric_values2.size();i++){
+                //     if(temp_numeric_values2[i].empty()) continue;
+                //     values[i].clear();
+                //     float max_ig = INT_MIN;
+                //     int max_index = 0;
+                //     for(int j=0;j<temp_dataset2.size();j++){
+                //         float ig = getInformationGain(temp_dataset2,values[values.size()-1],i,values[i],temp_numeric_values2[i][j]);
+                //         if(ig>max_ig){
+                //             max_ig = ig;
+                //             max_index = j;
+                //         }
+                //     }
+                //     values[i].insert(to_string(temp_numeric_values2[i][max_index]));
+                // }
+                calculateMaxThreshold(temp_dataset2,values,temp_decisions2,used);
+                Node* child2 = makeDecisionTree(temp_dataset2,values,temp_decisions2,used);
+                root->addChild("geq "+to_string(used[max_i].first),child2);
+            }
+            break;
+        }
+        else{
+            vector<vector<string>> temp_dataset;
+            unordered_map<string,int> temp_decisions;
+            // vector<vector<float>> temp_numeric_values(numeric_values.size());
+            for(int i=0;i<dataset.size();i++){
+                if(dataset[i][max_i] == val){
+                    temp_dataset.push_back(dataset[i]);
+                    // for(int j=0;j<numeric_values.size();j++){
+                    //     if(numeric_values[j].empty()) continue;
+                    //     temp_numeric_values[j].push_back(numeric_values[j][i]);
+                    // }
+                    temp_decisions[dataset[i][values.size()-1]]++;
+                } 
+            }
+            // for(int i=0;i<temp_numeric_values.size();i++){
+            //     if(temp_numeric_values[i].empty()) continue;
+            //     values[i].clear();
+            //     float max_ig = INT_MIN;
+            //     int max_index = 0;
+            //     for(int j=0;j<temp_dataset.size();j++){
+            //         float ig = getInformationGain(temp_dataset,values[values.size()-1],i,values[i],temp_numeric_values[i][j]);
+            //         if(ig>max_ig){
+            //             max_ig = ig;
+            //             max_index = j;
+            //         }
+            //     }
+            //     values[i].insert(to_string(temp_numeric_values[i][max_index]));
+            // }
+            calculateMaxThreshold(temp_dataset,values,temp_decisions,used)
+            Node* child = makeDecisionTree(temp_dataset,attributes,values,temp_numeric_values);
+            root->addChild(val,child);
+        }
+    }
+    root->print();
+    attributes[max_i].second = false;
+    return root;
+}
+
+
+int main()
+{
+    ifstream file("test.txt");
+    string line;
+    if(!file.is_open()) {
+        cout<<"File not found"<<endl;
+        return 1;
+    }
+    
+    vector<vector<string>> dataset;
+    vector<pair<float,bool>> used;
+    
+    getline(file,line);
+    stringstream ss(line);
+    string attribute;
+    int i = 1;
+    while(getline(ss,attribute,',')){
+        used.push_back(make_pair(INT_MIN,false));
+        i++;
+    }
+    vector<unordered_set<string>> values(used.size());
+    unordered_map<string,int> decisions;
+
+    while(getline(file,line)) {
+        stringstream ss(line);
+        string value;
+        vector<string> row;
+        int i=0;
+        while(getline(ss,value,',')) {
+            row.push_back(value);
+            values[i].insert(trim(value));
+            if(i==values.size()-1){
+                decisions[value]++;
+            }
+            i++;
+        }
+        dataset.push_back(row);
+    }
+
+    calculateMaxThreshold(dataset,values,decisions,used);
+    for(int i=0;i<used.size();i++){
+        cout<<used[i].first<<endl;
+    }
+    
+    return 0;
+}
